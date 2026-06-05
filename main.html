@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IB Study Dashboard - First UI</title>
+  <style>
+:root {
+  --bg: #0f0f1a;
+  --surface: #1a1a2e;
+  --surface2: #16213e;
+  --accent: #7c3aed;
+  --accent2: #06b6d4;
+  --accent3: #10b981;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border: #2d2d4e;
+  --card: #1e1e35;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* NAV */
+nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-size: 1.3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.nav-tab {
+  padding: 0.4rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.nav-tab:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.nav-tab.active {
+  background: var(--accent);
+  color: white;
+}
+
+.timer-display {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent2);
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  user-select: none;
+}
+
+/* LAYOUT */
+.page {
+  padding: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 2.5rem 0 2rem;
+}
+
+.hero h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.hero p {
+  color: var(--text-muted);
+  font-size: 1.05rem;
+}
+
+/* SUBJECT CARDS */
+.subject-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.subject-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.subject-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.subject-card .icon {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.subject-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.subject-card p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.badge.hl {
+  background: rgba(124, 58, 237, 0.2);
+  color: #a78bfa;
+}
+
+.badge.sl {
+  background: rgba(6, 182, 212, 0.2);
+  color: #67e8f9;
+}
+
+.badge.core {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  nav {
+    padding: 0 1rem;
+  }
+
+  .nav-tab span {
+    display: none;
+  }
+
+  .page {
+    padding: 1rem;
+  }
+}
+
+</style>
+</head>
+<body>
+  <nav>
+    <div class="logo">📚 IB Hub</div>
+
+    <div class="nav-tabs">
+      <button class="nav-tab active">🏠 <span>Home</span></button>
+      <button class="nav-tab">🃏 <span>Flashcards</span></button>
+      <button class="nav-tab">❓ <span>Quiz</span></button>
+      <button class="nav-tab">✅ <span>Topics</span></button>
+    </div>
+
+    <div class="timer-display" title="Study Timer">⏱ 00:00</div>
+  </nav>
+
+  <main class="page">
+    <section class="hero">
+      <h1>Your IB Study Hub 🎓</h1>
+      <p>Flashcards · Quizzes · Topic checklists · Study timer — all in one place</p>
+    </section>
+
+    <section class="subject-grid" id="homeSubjects" aria-label="IB subjects"></section>
+  </main>
+
+  <script>
+const SUBJECTS = [
+  { id: 'math', name: 'Mathematics', group: 'Group 5', levels: ['AA HL', 'AA SL', 'AI SL'] },
+  { id: 'physics', name: 'Physics', group: 'Group 4', levels: ['HL', 'SL'] },
+  { id: 'chemistry', name: 'Chemistry', group: 'Group 4', levels: ['HL', 'SL'] },
+  { id: 'biology', name: 'Biology', group: 'Group 4', levels: ['HL', 'SL'] },
+  { id: 'econ', name: 'Economics', group: 'Group 3', levels: ['HL', 'SL'] },
+  { id: 'history', name: 'History', group: 'Group 3', levels: ['HL', 'SL'] },
+  { id: 'english', name: 'English A', group: 'Group 1', levels: ['HL', 'SL'] },
+  { id: 'ess', name: 'ESS', group: 'Group 3/4', levels: ['SL'] },
+  { id: 'tok', name: 'TOK', group: 'Core', levels: ['Core'] },
+  { id: 'ee', name: 'Extended Essay', group: 'Core', levels: ['Core'] },
+  { id: 'ia', name: 'IAs & CAS', group: 'Core', levels: ['Core'] },
+];
+
+function buildHome() {
+  const grid = document.getElementById('homeSubjects');
+
+  SUBJECTS.forEach((subject) => {
+    const card = document.createElement('div');
+    card.className = 'subject-card';
+
+    const badgeClass =
+      subject.group === 'Core'
+        ? 'core'
+        : subject.levels.includes('HL')
+          ? 'hl'
+          : 'sl';
+
+    card.innerHTML = `
+      <div class="icon">${subject.icon}</div>
+      <h3>${subject.name}</h3>
+      <p>${subject.group}</p>
+      <span class="badge ${badgeClass}">${subject.levels.join(' · ')}</span>
+    `;
+
+    grid.appendChild(card);
+  });
+}
+
+buildHome();
+
+</script>
+</body>
+</html>
