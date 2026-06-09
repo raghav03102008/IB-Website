@@ -84,8 +84,6 @@
     text-align: left;
   }
   .subject-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .subject-card.disabled { opacity: 0.55; cursor: not-allowed; }
-  .subject-card.disabled:hover { border-color: var(--border); transform: none; }
   .subject-card .icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
   .subject-card h3 { font-size: 1rem; font-weight: 600; }
   .subject-card p { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; }
@@ -314,7 +312,7 @@
 <div class="page active" id="page-home">
   <div class="hero">
     <h1>Your IB Study Hub 🎓</h1>
-    <p>Maths flashcards · quizzes · topic checklist · study timer</p>
+    <p>Flashcards · Quizzes · Topic checklists · Study timer — all in one place</p>
   </div>
   <div class="subject-grid" id="homeSubjects"></div>
 </div>
@@ -324,7 +322,7 @@
   <h2 style="margin-bottom:1.2rem">Flashcards</h2>
   <div class="flashcard-controls">
     <select id="fcSubjectFilter" onchange="filterFlashcards()">
-      <option value="math">Mathematics</option>
+      <option value="all">All Subjects</option>
     </select>
     <button class="btn btn-secondary" onclick="shuffleCards()">🔀 Shuffle</button>
     <span id="fcProgress" style="color:var(--text-muted);font-size:0.85rem"></span>
@@ -358,10 +356,10 @@
 <div class="page" id="page-quiz">
   <div id="quizStart" style="text-align:center;padding:3rem 0">
     <h2 style="font-size:2rem;margin-bottom:0.7rem">Quiz Mode</h2>
-    <p style="color:var(--text-muted);margin-bottom:1.5rem">Test yourself in Mathematics</p>
+    <p style="color:var(--text-muted);margin-bottom:1.5rem">Test yourself across all IB subjects</p>
     <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem">
       <select id="quizSubject" style="padding:0.6rem 1rem">
-        <option value="math">Mathematics</option>
+        <option value="all">All Subjects</option>
       </select>
       <select id="quizCount" style="padding:0.6rem 1rem">
         <option value="5">5 Questions</option>
@@ -555,7 +553,7 @@ const CHECKLIST = [
 // ──────────────────────────────────────────
 // STATE
 // ──────────────────────────────────────────
-let currentCards = FLASHCARDS.filter(c => c.subject === 'math');
+let currentCards = [...FLASHCARDS];
 let cardIndex = 0;
 let quizQueue = [];
 let quizIndex = 0;
@@ -587,24 +585,24 @@ function buildHome() {
   const grid = document.getElementById('homeSubjects');
   SUBJECTS.forEach(s => {
     const el = document.createElement('div');
-    const isMath = s.id === 'math';
-    el.className = 'subject-card' + (isMath ? '' : ' disabled');
+    el.className = 'subject-card';
     const badgeClass = s.group === 'Core' ? 'core' : (s.levels.includes('HL') ? 'hl' : 'sl');
     el.innerHTML = `<div class="icon">${s.icon}</div>
       <h3>${s.name}</h3>
       <p>${s.group}</p>
-      <span class="badge ${badgeClass}">${isMath ? s.levels.join(' · ') : 'Coming soon'}</span>`;
-    if (isMath) el.onclick = () => { filterBySubject(s.id); showPage('flashcards'); };
+      <span class="badge ${badgeClass}">${s.levels.join(' · ')}</span>`;
+    el.onclick = () => { filterBySubject(s.id); showPage('flashcards'); };
     grid.appendChild(el);
   });
-  // For now, only Mathematics is enabled in the working menus
+  // populate selects
   const fcSel = document.getElementById('fcSubjectFilter');
   const qSel = document.getElementById('quizSubject');
-  [fcSel, qSel].forEach(sel => {
-    sel.innerHTML = '';
-    const all = document.createElement('option');
-    all.value = 'math'; all.textContent = 'Mathematics';
-    sel.appendChild(all);
+  SUBJECTS.forEach(s => {
+    [fcSel, qSel].forEach(sel => {
+      const o = document.createElement('option');
+      o.value = s.id; o.textContent = s.name;
+      sel.appendChild(o);
+    });
   });
 }
 
@@ -616,7 +614,8 @@ function filterBySubject(id) {
   filterFlashcards();
 }
 function filterFlashcards() {
-  currentCards = FLASHCARDS.filter(c => c.subject === 'math');
+  const val = document.getElementById('fcSubjectFilter').value;
+  currentCards = val === 'all' ? [...FLASHCARDS] : FLASHCARDS.filter(c => c.subject === val);
   cardIndex = 0;
   showCard();
 }
@@ -651,7 +650,11 @@ function rateCard(r) {
 // QUIZ
 // ──────────────────────────────────────────
 function startQuiz() {
-  let pool = QUESTIONS.filter(q => q.subject === 'Mathematics');
+  const subj = document.getElementById('quizSubject').value;
+  let pool = subj === 'all' ? [...QUESTIONS] : QUESTIONS.filter(q => {
+    const s = SUBJECTS.find(s2 => s2.id === subj);
+    return s && q.subject.toLowerCase().includes(s.name.toLowerCase().split(' ')[0].toLowerCase());
+  });
   pool.sort(() => Math.random() - 0.5);
   const cnt = document.getElementById('quizCount').value;
   quizQueue = cnt === 'all' ? pool : pool.slice(0, parseInt(cnt));
@@ -725,7 +728,7 @@ function showResult() {
 function buildChecklist() {
   const grid = document.getElementById('checklistGrid');
   grid.innerHTML = '';
-  CHECKLIST.filter(group => group.subject === 'Mathematics').forEach(group => {
+  CHECKLIST.forEach(group => {
     const done = group.topics.filter(t => checklistState[group.subject + '|' + t]).length;
     const total = group.topics.length;
     const pct = Math.round((done / total) * 100);
@@ -760,10 +763,9 @@ function resetChecklist() {
   if (confirm('Reset all checklist progress?')) { checklistState = {}; localStorage.setItem('ibChecklist', '{}'); buildChecklist(); }
 }
 function updateTotalProgress() {
-  const activeChecklist = CHECKLIST.filter(g => g.subject === 'Mathematics');
-  const total = activeChecklist.reduce((s, g) => s + g.topics.length, 0);
-  const done = activeChecklist.reduce((s, g) => s + g.topics.filter(t => checklistState[g.subject + '|' + t]).length, 0);
-  document.getElementById('totalProgress').textContent = `${done}/${total} maths topics complete (${Math.round(done/total*100)}%)`;
+  const total = CHECKLIST.reduce((s, g) => s + g.topics.length, 0);
+  const done = CHECKLIST.reduce((s, g) => s + g.topics.filter(t => checklistState[g.subject + '|' + t]).length, 0);
+  document.getElementById('totalProgress').textContent = `${done}/${total} topics complete (${Math.round(done/total*100)}%)`;
 }
 
 // ──────────────────────────────────────────
