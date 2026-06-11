@@ -7,24 +7,27 @@
 
   <style>
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #101018;
+  background: #101018;
   color: #eeeeee;
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
 }
 
-/* navigation bar */
+/* NAV */
 nav {
-  background-color: #1b1b2b;
+  background: #1b1b2b;
   border-bottom: 1px solid #333333;
-  padding: 12px 24px;
+  padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 60px;
 }
 
 .logo {
@@ -41,45 +44,48 @@ nav {
 .nav-tab {
   padding: 8px 14px;
   border: none;
-  border-radius: 5px;
-  background-color: transparent;
+  background: transparent;
   color: #bbbbbb;
   cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
 }
 
 .nav-tab:hover {
-  background-color: #2b2b40;
-  color: #ffffff;
+  background: #2b2b40;
+  color: white;
 }
 
 .nav-tab.active {
-  background-color: #6d4aff;
-  color: #ffffff;
+  background: #6d4aff;
+  color: white;
 }
 
 .timer-display {
-  padding: 6px 12px;
-  border: 1px solid #333333;
-  border-radius: 5px;
-  color: #6bdcff;
+  font-size: 17px;
   font-weight: bold;
+  color: #6bdcff;
+  padding: 6px 12px;
+  border-radius: 5px;
+  border: 1px solid #333333;
 }
 
-/* page content */
+/* LAYOUT */
 .page {
+  padding: 30px 20px;
   max-width: 1050px;
   margin: 0 auto;
-  padding: 30px 20px;
 }
 
+/* HERO */
 .hero {
   text-align: center;
   padding: 30px 0;
 }
 
 .hero h1 {
-  margin-bottom: 10px;
   font-size: 36px;
+  margin-bottom: 10px;
 }
 
 .hero p {
@@ -87,70 +93,69 @@ nav {
   font-size: 17px;
 }
 
-/* subject cards */
+/* SUBJECT CARDS */
 .subject-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 16px;
   margin-top: 25px;
 }
 
 .subject-card {
-  background-color: #202035;
+  background: #202035;
   border: 1px solid #33334d;
   border-radius: 8px;
   padding: 18px;
   cursor: pointer;
+  text-align: left;
 }
 
 .subject-card:hover {
   border-color: #8b5cf6;
 }
 
-.icon {
+.subject-card .icon {
   font-size: 28px;
   margin-bottom: 8px;
 }
 
 .subject-card h3 {
-  margin: 0;
   font-size: 17px;
+  margin-bottom: 5px;
 }
 
 .subject-card p {
-  margin-top: 5px;
-  color: #aaaaaa;
   font-size: 14px;
+  color: #aaaaaa;
 }
 
 .badge {
   display: inline-block;
-  margin-top: 10px;
   padding: 4px 9px;
   border-radius: 12px;
   font-size: 12px;
   font-weight: bold;
+  margin-top: 10px;
 }
 
-.hl {
-  background-color: #33245a;
+.badge.hl {
+  background: #33245a;
   color: #c4b5fd;
 }
 
-.sl {
-  background-color: #164052;
+.badge.sl {
+  background: #164052;
   color: #8eeaff;
 }
 
-.core {
-  background-color: #164634;
+.badge.core {
+  background: #164634;
   color: #86efac;
 }
 
-/* phone layout */
 @media (max-width: 600px) {
   nav {
-    padding: 10px;
+    padding: 0 10px;
   }
 
   .nav-tab span {
@@ -179,7 +184,7 @@ nav {
       <button class="nav-tab">✅ <span>Topics</span></button>
     </div>
 
-    <div class="timer-display">⏱ 00:00</div>
+    <div class="timer-display" title="Study Timer">⏱ 00:00</div>
   </nav>
 
   <main class="page">
@@ -188,125 +193,50 @@ nav {
       <p>Flashcards · Quizzes · Topic checklists · Study timer — all in one place</p>
     </section>
 
-    <section class="subject-grid" id="homeSubjects"></section>
+    <section class="subject-grid" id="homeSubjects" aria-label="IB subjects"></section>
   </main>
 
   <script>
-const subjects = [
-  {
-    icon: '➗',
-    name: 'Mathematics',
-    group: 'Group 5',
-    levels: ['AA HL', 'AA SL', 'AI SL']
-  },
-  {
-    icon: '⚛️',
-    name: 'Physics',
-    group: 'Group 4',
-    levels: ['HL', 'SL']
-  },
-  {
-    icon: '🧪',
-    name: 'Chemistry',
-    group: 'Group 4',
-    levels: ['HL', 'SL']
-  },
-  {
-    icon: '🧬',
-    name: 'Biology',
-    group: 'Group 4',
-    levels: ['HL', 'SL']
-  },
-  {
-    icon: '📈',
-    name: 'Economics',
-    group: 'Group 3',
-    levels: ['HL', 'SL']
-  },
-  {
-    icon: '📜',
-    name: 'History',
-    group: 'Group 3',
-    levels: ['HL', 'SL']
-  },
-  {
-    icon: '📖',
-    name: 'English A',
-    group: 'Group 1',
-    levels: ['HL', 'SL']
-  },
-  {
-    icon: '🌍',
-    name: 'ESS',
-    group: 'Group 3/4',
-    levels: ['SL']
-  },
-  {
-    icon: '💭',
-    name: 'TOK',
-    group: 'Core',
-    levels: ['Core']
-  },
-  {
-    icon: '✍️',
-    name: 'Extended Essay',
-    group: 'Core',
-    levels: ['Core']
-  },
-  {
-    icon: '📁',
-    name: 'IAs & CAS',
-    group: 'Core',
-    levels: ['Core']
-  }
+const SUBJECTS = [
+  { icon: '➗', name: 'Mathematics', group: 'Group 5', levels: ['AA HL', 'AA SL', 'AI SL'] },
+  { icon: '⚛️', name: 'Physics', group: 'Group 4', levels: ['HL', 'SL'] },
+  { icon: '🧪', name: 'Chemistry', group: 'Group 4', levels: ['HL', 'SL'] },
+  { icon: '🧬', name: 'Biology', group: 'Group 4', levels: ['HL', 'SL'] },
+  { icon: '📈', name: 'Economics', group: 'Group 3', levels: ['HL', 'SL'] },
+  { icon: '📜', name: 'History', group: 'Group 3', levels: ['HL', 'SL'] },
+  { icon: '📖', name: 'English A', group: 'Group 1', levels: ['HL', 'SL'] },
+  { icon: '🌍', name: 'ESS', group: 'Group 3/4', levels: ['SL'] },
+  { icon: '💭', name: 'TOK', group: 'Core', levels: ['Core'] },
+  { icon: '✍️', name: 'Extended Essay', group: 'Core', levels: ['Core'] },
+  { icon: '📁', name: 'IAs & CAS', group: 'Core', levels: ['Core'] }
 ];
 
-function getBadgeClass(subject) {
-  if (subject.group === 'Core') {
-    return 'core';
-  }
+function buildHome() {
+  const grid = document.getElementById('homeSubjects');
 
-  if (subject.levels.includes('HL')) {
-    return 'hl';
-  }
+  SUBJECTS.forEach((subject) => {
+    const card = document.createElement('div');
+    card.className = 'subject-card';
 
-  return 'sl';
+    const badgeClass =
+      subject.group === 'Core'
+        ? 'core'
+        : subject.levels.includes('HL')
+          ? 'hl'
+          : 'sl';
+
+    card.innerHTML = `
+      <div class="icon">${subject.icon}</div>
+      <h3>${subject.name}</h3>
+      <p>${subject.group}</p>
+      <span class="badge ${badgeClass}">${subject.levels.join(' · ')}</span>
+    `;
+
+    grid.appendChild(card);
+  });
 }
 
-function makeSubjectCard(subject) {
-  const card = document.createElement('div');
-  const icon = document.createElement('div');
-  const title = document.createElement('h3');
-  const group = document.createElement('p');
-  const badge = document.createElement('span');
-
-  card.className = 'subject-card';
-  icon.className = 'icon';
-  badge.className = 'badge ' + getBadgeClass(subject);
-
-  icon.textContent = subject.icon;
-  title.textContent = subject.name;
-  group.textContent = subject.group;
-  badge.textContent = subject.levels.join(' · ');
-
-  card.appendChild(icon);
-  card.appendChild(title);
-  card.appendChild(group);
-  card.appendChild(badge);
-
-  return card;
-}
-
-function showSubjects() {
-  const subjectGrid = document.getElementById('homeSubjects');
-
-  for (let i = 0; i < subjects.length; i++) {
-    const card = makeSubjectCard(subjects[i]);
-    subjectGrid.appendChild(card);
-  }
-}
-
-showSubjects();
+buildHome();
   </script>
 </body>
 </html>
